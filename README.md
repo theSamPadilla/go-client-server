@@ -1,0 +1,1 @@
+A Client-Server local application with Concurrency implemented using Go
