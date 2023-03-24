@@ -35,6 +35,12 @@ func (ll *LinkedList) GetFirstNode() *Node {
 	return ll.Root.next
 }
 
+// Returns ture if the node is the last in the
+// linked list, false otherwise
+func (ll *LinkedList) IsLastNode(n *Node) bool {
+	return ll.Root.previous == n
+}
+
 // Pushes an element to the end of the linked list
 // @Args: key, value - any type.
 // @Returns: new Node n *Node with key and value, n.previous pointing to l.root.prev and
@@ -77,5 +83,5 @@ func (ll *LinkedList) Remove(n *Node) {
 	//Clean memory
 	n.previous = nil
 	n.next = nil
-
+	n = nil
 }

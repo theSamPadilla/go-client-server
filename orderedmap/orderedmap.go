@@ -38,47 +38,68 @@ func (om *OrderedMap) SetItem(k interface{}, v interface{}) bool {
 
 // Removes key from ordered map.
 // @Args: k - any type
-// @Returns: nil if remove was succesful, error otherwise
-func (om *OrderedMap) RemoveItemByKey(k interface{}) error {
+// @Returns: (linkedlist.Node.Value, nil) if succesful, (nil, error) otherwise
+func (om *OrderedMap) RemoveItemByKey(k interface{}) (interface{}, error) {
 	node, exists := om.dict[k]
 	if !exists {
-		return fmt.Errorf("provided key %s does not exist in the map", k)
+		return nil, fmt.Errorf("provided key %s does not exist in the map", k)
 	}
 
 	//Else remove node from ll, and remove k from om.dict
+	v := node.Value
 	om.ll.Remove(node)
 	delete(om.dict, k)
-	return nil
+	return v, nil
 }
 
 // Gets the linkedlist.Node matching the provided k in OrderedMap.
 // @Args: k - any type
-// @Returns: *linkedlist.Node if key exists in om.dict, nil otherwise.
-func (om *OrderedMap) GetItemByKey(k interface{}) *linkedlist.Node {
+// @Returns: (*linkedlist.Node, nil) if key exists in om.dict, (nil, error) otherwise.
+func (om *OrderedMap) GetItemByKey(k interface{}) (*linkedlist.Node, error) {
 	node, exists := om.dict[k]
 	if exists {
-		return node
+		return node, nil
 	}
-
-	return nil
+	return nil, fmt.Errorf("provided key %s does not exist in the map", k)
 }
 
 // Gets the linkedlist.Node.Value matching the provided index i (0-indexed) in OrderedMap.
-// @Args: i - unsigned int32
-// @Returns: interface{} matching linkedlist.Node.Value if om[i] exists, nil otherwise.
-func (om *OrderedMap) GetItemByIndex(i uint32) interface{} {
+// @Args: i - unsigned int64
+// @Returns: (linkedlist.Node.Value, nil) if om[i] exists, (nil, error) otherwise.
+func (om *OrderedMap) GetItemByIndex(i uint64) (*linkedlist.Node, error) {
 	//Check for index greater than or equal to length
-	if len(om.dict) >= int(i) {
-		return nil
+	if len(om.dict) <= int(i) {
+		return nil, fmt.Errorf("provided index %d is greater than or equal to map length %d", i, len(om.dict))
 	}
 
 	//Else count fromt the root.next until finding index
-	n := *om.ll.GetFirstNode()
+	n := om.ll.GetFirstNode()
 	for count := 0; count < len(om.dict); count++ {
 		if count == int(i) {
-			return n.Value
+			return n, nil
 		}
-		n = *n.GetNextNode()
+		n = n.GetNextNode()
 	}
-	return nil
+	return nil, fmt.Errorf("could not find index %d in map", i)
+}
+
+// Gets all items in the map
+// @Returns: []map[interface{}]interface{} matching linkedlist.Node.Value if om[i] exists, nil otherwise.
+func (om *OrderedMap) GetAllItemsInOrder() []map[interface{}]interface{} {
+	var r []map[interface{}]interface{}
+
+	//!TODO: BUILD CATCH FOR EMPTY QUERY
+
+	//Iterate through the linkedlist and add key, and value
+	n := om.ll.GetFirstNode()
+	for count := 0; count < len(om.dict); count++ {
+		r = append(r, map[interface{}]interface{}{n.Key: n.Value})
+
+		//Check for last node and break if found
+		if om.ll.IsLastNode(n) {
+			break
+		}
+		n = n.GetNextNode()
+	}
+	return r
 }
