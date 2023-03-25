@@ -1,9 +1,9 @@
-// Package linkedlist is a custom implementation of a linkedlist for use
+// This file is a custom implementation of a linkedlist for use
 // by orderedmap [client-server/orderedmap]
 //
 // The linkedlist package implements a two-sided pointer linked list where
 // the `previous` pointer of root points to the last node of the linked list.
-package linkedlist
+package orderedmap
 
 // Value of the ordered map and a node of a linked list to keep order of elements
 type Node struct {
@@ -68,7 +68,7 @@ func (ll *LinkedList) Append(key interface{}, value interface{}) *Node {
 func (ll *LinkedList) Remove(n *Node) {
 	switch {
 	//Removing the first element (after root) -> Point root.next to n.next
-	case n.previous == nil:
+	case ll.Root.next == n:
 		ll.Root.next = n.next
 	//Removing tail -> Repoint root.previous to n.previous and n.previous.next to nil
 	case n.next == nil:

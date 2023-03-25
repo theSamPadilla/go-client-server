@@ -1,22 +1,26 @@
+// Package orderedmap is a custom implementation of an orderedmap
+// that utilizes a linkedlist
+//
+// The orderedmap package implements a map to of interface{} to *Node,
+// and a linked list instance for order keeping.
 package orderedmap
 
 import (
-	"client-server/linkedlist"
 	"fmt"
 )
 
-// An OrderedMap is a map of keys k to *linkedlist.Node instances.
+// An OrderedMap is a map of keys k to *Node instances.
 // Each linkedlinst.Node instance in turn has a key and value, and previous and next pointers.
-// Nodes are appended to linkedlist.LinkedList to track order
+// Nodes are appended to LinkedList to track order
 type OrderedMap struct {
-	dict map[interface{}]*linkedlist.Node
-	ll   linkedlist.LinkedList
+	dict map[interface{}]*Node
+	ll   LinkedList
 }
 
 // Constructs an empty ordered map
 func Constructor() *OrderedMap {
 	return &OrderedMap{ //No need to instantiate ll, nil type works
-		dict: make(map[interface{}]*linkedlist.Node),
+		dict: make(map[interface{}]*Node),
 	}
 }
 
@@ -38,7 +42,7 @@ func (om *OrderedMap) SetItem(k interface{}, v interface{}) bool {
 
 // Removes key from ordered map.
 // @Args: k - any type
-// @Returns: (linkedlist.Node.Value, nil) if succesful, (nil, error) otherwise
+// @Returns: (Node.Value, nil) if succesful, (nil, error) otherwise
 func (om *OrderedMap) RemoveItemByKey(k interface{}) (interface{}, error) {
 	node, exists := om.dict[k]
 	if !exists {
@@ -52,10 +56,10 @@ func (om *OrderedMap) RemoveItemByKey(k interface{}) (interface{}, error) {
 	return v, nil
 }
 
-// Gets the linkedlist.Node matching the provided k in OrderedMap.
+// Gets the Node matching the provided k in OrderedMap.
 // @Args: k - any type
-// @Returns: (*linkedlist.Node, nil) if key exists in om.dict, (nil, error) otherwise.
-func (om *OrderedMap) GetItemByKey(k interface{}) (*linkedlist.Node, error) {
+// @Returns: (*Node, nil) if key exists in om.dict, (nil, error) otherwise.
+func (om *OrderedMap) GetItemByKey(k interface{}) (*Node, error) {
 	node, exists := om.dict[k]
 	if exists {
 		return node, nil
@@ -63,10 +67,10 @@ func (om *OrderedMap) GetItemByKey(k interface{}) (*linkedlist.Node, error) {
 	return nil, fmt.Errorf("provided key %s does not exist in the map", k)
 }
 
-// Gets the linkedlist.Node.Value matching the provided index i (0-indexed) in OrderedMap.
+// Gets the Node.Value matching the provided index i (0-indexed) in OrderedMap.
 // @Args: i - unsigned int64
-// @Returns: (linkedlist.Node.Value, nil) if om[i] exists, (nil, error) otherwise.
-func (om *OrderedMap) GetItemByIndex(i uint64) (*linkedlist.Node, error) {
+// @Returns: (Node.Value, nil) if om[i] exists, (nil, error) otherwise.
+func (om *OrderedMap) GetItemByIndex(i uint64) (*Node, error) {
 	//Check for index greater than or equal to length
 	if len(om.dict) <= int(i) {
 		return nil, fmt.Errorf("provided index %d is greater than or equal to map length %d", i, len(om.dict))
@@ -84,11 +88,9 @@ func (om *OrderedMap) GetItemByIndex(i uint64) (*linkedlist.Node, error) {
 }
 
 // Gets all items in the map
-// @Returns: []map[interface{}]interface{} matching linkedlist.Node.Value if om[i] exists, nil otherwise.
+// @Returns: []map[interface{}]interface{} matching Node.Value if om[i] exists, nil otherwise.
 func (om *OrderedMap) GetAllItemsInOrder() []map[interface{}]interface{} {
 	var r []map[interface{}]interface{}
-
-	//!TODO: BUILD CATCH FOR EMPTY QUERY
 
 	//Iterate through the linkedlist and add key, and value
 	n := om.ll.GetFirstNode()

@@ -1,140 +1,89 @@
+// Package server implements a consumer of RabbitMQ messages and routes them to
+// the appropriate handler according to the method sent by the client. Messages
+// can add, remove, getItem, getIndex or getall itesm from an ordered map.
+//
+// This file contains the consumer definition and router definition. Handlers
+// and utilities in handlers.go and utils.go respectivelly.
 package server
 
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"strconv"
+	"log"
+	"os"
+	"runtime"
 
+	"client-server/common"
 	"client-server/orderedmap"
+	"client-server/queue"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/rabbitmq/amqp091-go"
 )
 
-// Builds the router and registers the routes
-func RegisterRoutes(om *orderedmap.OrderedMap) *httprouter.Router {
-	router := httprouter.New()
+// Starts the server, blocks channel to listen to requests, and invokes router
+func StartServer(om *orderedmap.OrderedMap, nonSequential bool, sleep bool) {
+	//Get q, conn and ch and defer their close
+	conn, ch, q := queue.ConnectAndGetQueue()
+	defer conn.Close()
+	defer ch.Close()
+	var err error
 
-	router.GET("/", GetAllItems(om))
-	router.GET("/key/:key", GetItemByKey(om))
-	router.GET("/index/:index", GetItemByIndex(om))
-	router.POST("/add", AddItem(om))
-	router.POST("/remove", RemoveItem(om))
+	//Dispatch messages without ack from workers
+	if nonSequential {
+		err = ch.Qos(0, 0, false)
 
-	return router
+	} else { //Dispatches messages to workers on ack, ensuring sequentiality
+		err = ch.Qos(1, 0, false)
+	}
+	queue.HandleIfError(err, "Failed to set QoS")
+
+	//Consume messages
+	msgs, err := ch.Consume(
+		q.Name,        // queue
+		"",            // consumer
+		nonSequential, // auto-ack
+		false,         // exclusive
+		false,         // no-local
+		false,         // no-wait
+		nil,           // args
+	)
+	queue.HandleIfError(err, "Failed to register a consumer")
+
+	//Log Server start, block channel and dispatch messages to router
+	logServerStart(nonSequential, sleep, q)
+	var repeat chan struct{}
+	MessageRouter(&msgs, om, nonSequential, sleep)
+	common.INFO.Printf("Goroutines running at the end of SERVER: %d\n\n", runtime.NumGoroutine())
+	<-repeat
 }
 
-// @ GET /
-func GetAllItems(om *orderedmap.OrderedMap) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		result := om.GetAllItemsInOrder()
-		fmt.Fprintf(w, "Result:\n%s\n", result)
+// Dispatches messages to workers according to the method type
+// Each worker runs in its own goroutine.
+// Runs indefinetely iterating over the message channel.
+func MessageRouter(msgs *<-chan amqp091.Delivery, om *orderedmap.OrderedMap, nonSequential bool, sleep bool) {
+	for request := range *msgs {
+		//Reinitialize new empty Client and unmarshal the body into it
+		var client common.Client
+		err := json.Unmarshal(request.Body, &client)
+		if err != nil {
+			fmt.Printf("error unmarshaling the message: %s\n", err)
+			log.Panic(err)
+			os.Exit(1)
+		}
+
+		//Route request to new goroutine, pass data structure and configs.
+		switch client.Method {
+		case "add":
+			go AddItem(client.Key, client.Value, om, &request, nonSequential, sleep)
+		case "remove":
+			go RemoveItem(client.Key, om, &request, nonSequential, sleep)
+		case "get":
+			go GetItem(client.Key, om, &request, nonSequential, sleep)
+		case "geti":
+			go GetItemByIndex(client.Key, om, &request, nonSequential, sleep)
+		default:
+			go GetAllItems(om, &request, nonSequential) //Get All never waits
+		}
 	}
-}
-
-// @ GET /key/:key
-func GetItemByKey(om *orderedmap.OrderedMap) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		result, err := om.GetItemByKey(ps.ByName("key"))
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-
-		fmt.Fprintf(w, "Result:\n%+v\n", result)
-	}
-}
-
-// @ GET /index/:index
-func GetItemByIndex(om *orderedmap.OrderedMap) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		//Check index validity
-		ui64, err := strconv.ParseUint(ps.ByName("index"), 10, 64)
-		if err != nil {
-			fmt.Fprintf(w, "Invalid index. Index must be a positive integer or zero.\n")
-			return
-		}
-
-		//Get item
-		result, err := om.GetItemByIndex(ui64)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		fmt.Fprintf(w, "Result:\n%+v\n", result)
-	}
-}
-
-// @ POST
-// Requires `key` and `value` in body of request
-func AddItem(om *orderedmap.OrderedMap) httprouter.Handle {
-	type NewItem struct {
-		K interface{} `json:"key"`
-		V interface{} `json:"value"`
-	}
-
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		//Check for JSON format of the body
-		contentType := r.Header.Get("Content-type")
-		if contentType != "application/json" {
-			fmt.Fprintf(w, "Invalid Content-type %s\n", contentType)
-			return
-		}
-
-		//Read the body of the request
-		b, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Fprintf(w, "An error occured while parsing the content of the request\n")
-			return
-		}
-
-		//Unmarshal the json and add item to ordered map
-		var item NewItem
-		err = json.Unmarshal(b, &item)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		om.SetItem(item.K, item.V)
-		fmt.Fprintf(w, "Succesfully added %s->%s.\n", item.K, item.V)
-	}
-}
-
-// @ POST
-// Requires `key` in body of the request
-func RemoveItem(om *orderedmap.OrderedMap) httprouter.Handle {
-	type RemoveItem struct {
-		K interface{} `json:"key"`
-	}
-
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		//Check for JSON format of the body
-		contentType := r.Header.Get("Content-type")
-		if contentType != "application/json" {
-			fmt.Fprintf(w, "Invalid Content-type %s\n", contentType)
-			return
-		}
-
-		//Read the body of the request
-		b, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Fprintf(w, "An error occured while parsing the content of the request\n")
-			return
-		}
-
-		//Unmarshal the json and remove from ordered map
-		var item RemoveItem
-		err = json.Unmarshal(b, &item)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		v, err := om.RemoveItemByKey(item.K)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		fmt.Fprintf(w, "Succesfully removed %s->%s from the map.\n", item.K, v)
-	}
+	common.INFO.Printf("Goroutines running at the end of ROUTER: %d\n", runtime.NumGoroutine())
 }
