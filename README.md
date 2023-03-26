@@ -39,9 +39,16 @@ go_client_server [server_mode_flag] [sleep_flag] [non_sequential_flag]
 
 ### Flags
 `go_client_server` takes 3 optional flags:
-- `-server-type`: If passed the value `http`, the application spins up an http server instead. Any other value (or the absence of the flag) defaults to a RabbitMQ client-server application. **If present and passed the value of `http`, all other flags are ignored.**
-- `-sleep`: If present, workers will simulate a "heavy" task by randmoly waiting 1-5 seconds before executing the work. This delay will be applied to all methods **except** `getall`.
-- `-non-sequential`: If present, the work queue will dispatch messages to workers without receiving acknowledgemnts. This may impact the sequentiality of operations passed to the data structure, espcially if `-sleep` is present.
+- **`-server-type`**
+    - If passed the value `http`, the application spins up an http server instead.
+    - Any other value (or the absence of the flag) defaults to a RabbitMQ client-server application.
+    - **If present and passed the value of `http`, all other flags are ignored.**
+- **`-sleep`**
+    - If present, workers will simulate a "heavy" task by randmoly waiting 1-5 seconds before executing the work.
+    - This delay will be applied to all methods **except** `getall`.
+- **`-non-sequential`**
+    - If present, the work queue will dispatch messages to workers without receiving acknowledgemnts.
+    - *Note: This may impact the sequentiality of operations passed to the data structure, espcially if `-sleep` is present.*
 
 ## Logs and results
 The http server does not write any logs. It just prints to `stdout` or to the request writer.
@@ -51,9 +58,9 @@ For the client-server with RabbitMQ application, errors are written to `stdout`.
 `go_client_server` will create and write to a different logfile based on the configurations passed.
 The options are:
 - `logs/server.log` for default mode.
-- `logs/sleep_nonSequential_server.log` for when the `-non-sequential` and `-sleep` flags are present.
-- `logs/nonSequential_server.log` for when only the `-non-sequential` flag is present.
-- `logs/sleep_server.log` for when only the `-sleep` flag is present.
+- `logs/sleep_nonSequential_server.log` when the `-non-sequential` and `-sleep` flags are present.
+- `logs/nonSequential_server.log` when only the `-non-sequential` flag is present.
+- `logs/sleep_server.log` when only the `-sleep` flag is present.
 
 Each log will contain information about the request, the Goroutine ID processing it, and how many goroutines are running at any time.
 For a `sleep_nonSequential_server.log` example:
