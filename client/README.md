@@ -17,20 +17,20 @@ go run client.go <command> [flags]
 ```
 
 The following commands and required flags are:
-- Command: `add`
+- **Command: `add`**
     - Adds a new value to the ordered map. Resets the value if it exists.
     - Required flags: `-key` and `-value`
-- Command: `remove`
+- **Command: `remove`**
     - Removes a key and its respective value from the ordered map.
     - Required flag: `-key`
-- Command: `get`
+- **Command: `get`**
     - Gets corresponding value in the orded map.
     - Required flag: `-key`
-- Command: `geti`
+- **Command: `geti`**
     - Gets value corresponding to the index passed.
     - Required flag: `-index`
         - `index` value must be an unsigned int.
-- Command: `getall`
+- **Command: `getall`**
     - Gets all the elements of the ordered map in order of insertion.
     - No required flags.
 
@@ -38,24 +38,24 @@ The following commands and required flags are:
 This go script is not needed to spin up an http client. Simply make a `curl` requests to the appropriate endpoint.
 Server listens to calls on `localhost:6969`.
 
-REST endpoints, methods, and formats:
-- `GET /`
+### REST endpoints, methods, and formats:
+- **`GET /`**
     - Gets all the elements of the ordered map in order of insertion.
 
-- `GET /key/<key>`
+- **`GET /key/<key>`**
     - Gets value corresponding to the key passed.
 
-- `GET /index/<index>`
+- **`GET /index/<index>`**
     - Gets value corresponding to the index passed.
     - Index must be an unsigned int.
 
-- `POST /add`
+- **`POST /add`**
     - Adds a key value pair to the ordered map.
     - Requires a request body of `Content-type: application/json` with the following values:
         - `key: <key>`
         - `value: <value>`
 
-- `POST /remove`
+- **`POST /remove`**
     - Removes a key and its respecitve value from the ordered map.
     - Requires a request body of `Content-type: application/json` with the following values:
         - `key: <key>`
