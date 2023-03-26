@@ -1,3 +1,6 @@
+// Package main is the entrypoint for module client-server. Main orchestrates usage
+// settings to allow for either an http server to be spun up, or a client-worker
+// orchestration using RabbitMQ.
 package main
 
 import (

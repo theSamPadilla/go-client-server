@@ -1,4 +1,4 @@
-module client-server
+module github.com/thesampadilla/go-client-server
 
 go 1.20
 
