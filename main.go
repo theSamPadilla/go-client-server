@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"os"
 
-	"client-server/common"
-	"client-server/httpserver"
-	"client-server/orderedmap"
-	"client-server/server"
+	"github.com/thesampadilla/go-client-server/common"
+	"github.com/thesampadilla/go-client-server/httpserver"
+	"github.com/thesampadilla/go-client-server/orderedmap"
+	"github.com/thesampadilla/go-client-server/server"
 )
 
 func main() {

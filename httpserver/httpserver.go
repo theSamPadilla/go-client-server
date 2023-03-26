@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"client-server/orderedmap"
+	"github.com/thesampadilla/go-client-server/orderedmap"
 
 	"github.com/julienschmidt/httprouter"
 )

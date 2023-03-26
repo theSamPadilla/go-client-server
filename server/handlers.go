@@ -2,8 +2,8 @@
 package server
 
 import (
-	"client-server/common"
-	"client-server/orderedmap"
+	"github.com/thesampadilla/go-client-server/common"
+	"github.com/thesampadilla/go-client-server/orderedmap"
 
 	"github.com/rabbitmq/amqp091-go"
 )

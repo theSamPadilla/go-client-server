@@ -3,7 +3,6 @@ package server
 
 import (
 	"bytes"
-	"client-server/common"
 	"log"
 	"math/rand"
 	"runtime"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/thesampadilla/go-client-server/common"
 )
 
 // Gets a goroutine ID

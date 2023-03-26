@@ -13,9 +13,9 @@ import (
 	"os"
 	"runtime"
 
-	"client-server/common"
-	"client-server/orderedmap"
-	"client-server/queue"
+	"github.com/thesampadilla/go-client-server/common"
+	"github.com/thesampadilla/go-client-server/orderedmap"
+	"github.com/thesampadilla/go-client-server/queue"
 
 	"github.com/rabbitmq/amqp091-go"
 )

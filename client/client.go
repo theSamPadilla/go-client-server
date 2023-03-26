@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"time"
 
-	"client-server/common"
-	"client-server/queue"
+	"github.com/thesampadilla/go-client-server/common"
+	"github.com/thesampadilla/go-client-server/queue"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
