@@ -1,2 +1,2 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/theSamPadilla/go-client-server](https://goreportcard.com/report/github.com/theSamPadilla/go-client-server)
+[![Go Report Card](https://goreportcard.com/badge/github.com/thesampadilla/go-client-server)](https://goreportcard.com/report/github.com/thesampadilla/go-client-server)
 A Client-Server local application with Concurrency implemented using Go
