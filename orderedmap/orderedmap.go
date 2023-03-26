@@ -42,7 +42,7 @@ func (om *OrderedMap) SetItem(k interface{}, v interface{}) bool {
 
 // Removes key from ordered map.
 // @Args: k - any type
-// @Returns: (Node.Value, nil) if succesful, (nil, error) otherwise
+// @Returns: (Node.Value, nil) if successful, (nil, error) otherwise
 func (om *OrderedMap) RemoveItemByKey(k interface{}) (interface{}, error) {
 	node, exists := om.dict[k]
 	if !exists {

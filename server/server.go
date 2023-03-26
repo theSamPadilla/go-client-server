@@ -3,7 +3,7 @@
 // can add, remove, getItem, getIndex or getall itesm from an ordered map.
 //
 // This file contains the consumer definition and router definition. Handlers
-// and utilities in handlers.go and utils.go respectivelly.
+// and utilities in handlers.go and utils.go respectively.
 package server
 
 import (
@@ -59,7 +59,7 @@ func StartServer(om *orderedmap.OrderedMap, nonSequential bool, sleep bool) {
 
 // Dispatches messages to workers according to the method type
 // Each worker runs in its own goroutine.
-// Runs indefinetely iterating over the message channel.
+// Runs indefinitely iterating over the message channel.
 func MessageRouter(msgs *<-chan amqp091.Delivery, om *orderedmap.OrderedMap, nonSequential bool, sleep bool) {
 	for request := range *msgs {
 		//Reinitialize new empty Client and unmarshal the body into it

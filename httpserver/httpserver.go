@@ -85,7 +85,7 @@ func AddItem(om *orderedmap.OrderedMap) httprouter.Handle {
 		//Read the body of the request
 		b, err := io.ReadAll(r.Body)
 		if err != nil {
-			fmt.Fprintf(w, "An error occured while parsing the content of the request\n")
+			fmt.Fprintf(w, "An error occurred while parsing the content of the request\n")
 			return
 		}
 
@@ -97,7 +97,7 @@ func AddItem(om *orderedmap.OrderedMap) httprouter.Handle {
 			return
 		}
 		om.SetItem(item.K, item.V)
-		fmt.Fprintf(w, "Succesfully added %s->%s.\n", item.K, item.V)
+		fmt.Fprintf(w, "Successfully added %s->%s.\n", item.K, item.V)
 	}
 }
 
@@ -119,7 +119,7 @@ func RemoveItem(om *orderedmap.OrderedMap) httprouter.Handle {
 		//Read the body of the request
 		b, err := io.ReadAll(r.Body)
 		if err != nil {
-			fmt.Fprintf(w, "An error occured while parsing the content of the request\n")
+			fmt.Fprintf(w, "An error occurred while parsing the content of the request\n")
 			return
 		}
 
@@ -135,6 +135,6 @@ func RemoveItem(om *orderedmap.OrderedMap) httprouter.Handle {
 			http.Error(w, err.Error(), 500)
 			return
 		}
-		fmt.Fprintf(w, "Succesfully removed %s->%s from the map.\n", item.K, v)
+		fmt.Fprintf(w, "Successfully removed %s->%s from the map.\n", item.K, v)
 	}
 }

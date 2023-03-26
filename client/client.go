@@ -35,7 +35,7 @@ func main() {
 	//Marshal client
 	msg, err := json.Marshal(client)
 	if err != nil {
-		fmt.Printf("an error %s occured when marshalling the client input", err)
+		fmt.Printf("an error %s occurred when marshalling the client input", err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func main() {
 	queue.HandleIfError(err, "Failed to publish message")
 
 	//log.Printf(" [x] Sent %s", msg)
-	fmt.Printf("Succesfully sent message %s to queue\n", msg)
+	fmt.Printf("Successfully sent message %s to queue\n", msg)
 }
 
 // Sets and parses command line flags
