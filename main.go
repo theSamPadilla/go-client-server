@@ -13,9 +13,16 @@ import (
 	"github.com/thesampadilla/go-client-server/httpserver"
 	"github.com/thesampadilla/go-client-server/orderedmap"
 	"github.com/thesampadilla/go-client-server/server"
+
+	_ "net/http/pprof"
 )
 
 func main() {
+	// Server for pprof
+	go func() {
+		fmt.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	//Get flags, set loggers, and set orderedmap
 	serverType, nonSequential, sleep := getFlags()
 	common.SetLoggers("logs/server.log", nonSequential, sleep)

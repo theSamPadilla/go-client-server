@@ -12,7 +12,6 @@ import (
 	"log"
 	"os"
 	"runtime"
-	"sync"
 
 	"github.com/thesampadilla/go-client-server/common"
 	"github.com/thesampadilla/go-client-server/orderedmap"
@@ -22,9 +21,9 @@ import (
 )
 
 // Starts the server, blocks channel to listen to requests, and invokes router
-func StartServer(om *orderedmap.OrderedMap, nonSequential bool, sleep bool, wg *sync.WaitGroup) {
+func StartServer(om *orderedmap.OrderedMap, nonSequential bool, sleep bool) {
 	//Defer wg
-	defer wg.Done()
+	//defer wg.Done()
 
 	//Get q, conn and ch and defer their close
 	conn, ch, q := queue.ConnectAndGetQueue()
