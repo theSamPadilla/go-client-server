@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 
 	"github.com/thesampadilla/go-client-server/common"
@@ -71,7 +70,6 @@ func MessageRouter(msgs *<-chan amqp091.Delivery, om *orderedmap.OrderedMap, non
 		if err != nil {
 			fmt.Printf("error unmarshaling the message: %s\n", err)
 			log.Panic(err)
-			os.Exit(1)
 		}
 
 		//Route request to new goroutine, pass data structure and configs.
